@@ -74,22 +74,28 @@ Run `python3 generate_puzzle.py -i data/sample.png`.
     1. First line: prefix of piece images, is always "piece-".
     2. Second line: number of piece images, one integer.
     3. Third line: bg color for empty areas in BGR OpenCV format.
+
 2. ##### groundtruth.json (used for Debugger in Javascript):
     1. id: piece id.
     2. dx: horizontal translation of the piece.
     3. dy: vertical translation of the piece.
     4. rotation: clockwise rotation of the piece with respect to the center (radius).
+
 3. ##### groundtruth.txt (used for other programs):
   It is the same as the groundtruth.json, the three values per line are: dx, dy, and rotation.
+
 4. ##### puzzle-X.zip (used for Debugger in Javascript):
   A package contains all piece images and the config file.
+
 5. ##### challenge-{name}-X.zip (used as a starting point to solve the puzzle)  
   It contains information about the size of the original image (to be used as a reference system) and the relative transformation of the first fragment, which is the reference one.
   `{name}` is the name of the initial image used to generate the puzzle.
   This way the solution can be coherent and all relative to the reference fragment, making it easier to compare.
   Moreover, it gives some information about the processing step (alpha channel, number of regions, etc..), but it does NOT contain further information about ground truth of the other fragments.
+
 6. ##### regions_col_coded and regions_uint8 (images)
   They are optional (enable them with the `-svr` flag) and are images of the regions without the texture. Useful for checking the cuts.
+
 7. ##### groundtruth_extended.json
   It contains the challenge information (general information about the processing procedure and reference system) and the ground truth information. For some post-processing/checking offline it came very useful to have more info in one single file, but it does not introduces new information.
 

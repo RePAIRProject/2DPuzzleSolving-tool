@@ -1,9 +1,9 @@
 import argparse
-
+import pdb
 from src.generator import PuzzleGenerator
 
 def generate_puzzle(args):
-    
+
     print('Groundtruth img path:', args.img_path)
     print('Piece num: %d, sample num: %d\n' % (args.piece_n, args.sample_n))
     print('Background color:', args.bg_color)
@@ -11,11 +11,11 @@ def generate_puzzle(args):
     generator = PuzzleGenerator(args.img_path)
 
     for i in range(args.sample_n):
-        
+
         print('Sample:', i)
 
-        generator.run(args.piece_n, args.offset_h, args.offset_w, args.small_region, args.rotate)
-        generator.save(args.bg_color)
+        generator.run(args.piece_n, args.offset_h, args.offset_w, args.small_region, args.rotate, args.smooth_flag)
+        generator.save(args.bg_color, args.save_regions)
 
 if __name__ == '__main__':
 
@@ -45,8 +45,21 @@ if __name__ == '__main__':
     parser.add_argument('--bg_color', default=[0, 0, 0], type=int, nargs=3,
         help='Background color to fill the empty area. Default is [0, 0, 0]. The type is three uint8 \
         numbers in BGR OpenCV format.')
+
+    ## added
+    parser.add_argument('-sf', '--smooth-flag', default=False, type=bool,
+        help='Boolean flag to enable or disable the interpolation of the cuts. False (default) will cut \
+        the image using segments, True will use smooth curves.')
+    parser.add_argument('-ac', '--alpha_channel', default=False, type=bool,
+        help='Boolean flag to enable the alpha channel. It will save the individual fragments images \
+        as transparent (.png) images with alpha = 0 in the background.')
+    parser.add_argument('-svr', '--save_regions', default=False, type=bool,
+        help='Boolean flag to save a color-coded image of the regions.')
+
+
+
     args = parser.parse_args()
 
     args.bg_color = tuple(args.bg_color)
-
+    #pdb.set_trace()
     generate_puzzle(args)

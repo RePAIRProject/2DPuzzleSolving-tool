@@ -301,7 +301,9 @@ class PuzzleGenerator:
             'regions': self.region_cnt,
             'alpha_channel': self.alpha_channel,
             'rot_range': self.rot_range,
-            'small_region_area_ratio': self.small_region_area_ratio
+            'small_region_area_ratio': self.small_region_area_ratio,
+            'num_of_missing_fragments': int(self.num_of_missing_fragments),
+            'missing_indices': [int(ind) for ind in self.missing_indices]
         }
 
         gt = {
@@ -314,6 +316,7 @@ class PuzzleGenerator:
         json.dump(groundtruth, outfile, indent=3)
         outfile.close()
 
+        #for gk in general_info.keys(): print(gk, type(general_info[gk]))
         groundtruth_path = os.path.join(puzzle_path, 'groundtruth_extended.json')
         outfile = open(groundtruth_path, 'w')
         json.dump(gt, outfile, indent=3)
@@ -354,14 +357,15 @@ class PuzzleGenerator:
 
         zipf = zipfile.ZipFile(zip_path, 'w', zipfile.ZIP_DEFLATED)
         for i in range(self.region_cnt):
-            piece_name = 'piece-%d.png' % i
-            zipf.write(os.path.join(puzzle_path, piece_name), piece_name)
+            if i not in self.missing_indices:
+                piece_name = 'piece-%d.png' % i
+                zipf.write(os.path.join(puzzle_path, piece_name), piece_name)
         zipf.write(os.path.join(puzzle_path, 'challenge.json'), 'challenge.json')
         zipf.close()
 
 
     def run(self, piece_n, offset_rate_h=0.2, offset_rate_w=0.2, small_region_area_ratio=0.25, rot_range=180,
-            smooth_flag=False, alpha_channel=True):
+            smooth_flag=False, alpha_channel=True, perc_missing_fragments=0):
 
         self.rot_range = rot_range
         self.piece_n = piece_n
@@ -370,6 +374,7 @@ class PuzzleGenerator:
         self.smooth_flag = smooth_flag
         self.alpha_channel = alpha_channel
         self.small_region_area_ratio = small_region_area_ratio
+        self.missing_indices = []
 
         print('\tInitial block in hori: %d, in vert: %d' % (self.w_n, self.h_n))
         print('\tOffset rate h: %.2f, w: %.2f, small region: %.2f, rot: %.2f' %
@@ -377,6 +382,10 @@ class PuzzleGenerator:
 
         self.get_mask(offset_rate_h, offset_rate_w)
         self.get_regions()
+        self.num_of_missing_fragments = np.floor(self.region_cnt * perc_missing_fragments / 100).astype(int)
+        if self.num_of_missing_fragments > 0:
+            self.missing_indices = random.sample(set(np.arange(1, self.region_cnt)), self.num_of_missing_fragments)
+            self.missing_indices = np.sort([int(ind) for ind in self.missing_indices])
 
     def save(self, bg_color=(0,0,0), save_regions=False):
 

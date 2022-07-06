@@ -14,7 +14,8 @@ def generate_puzzle(args):
 
         print('Sample:', i)
 
-        generator.run(args.piece_n, args.offset_h, args.offset_w, args.small_region, args.rotate, args.smooth_flag)
+        generator.run(args.piece_n, args.offset_h, args.offset_w, args.small_region, args.rotate, args.smooth_flag,
+                      args.alpha_channel, args.perc_missing_fragments)
         generator.save(args.bg_color, args.save_regions)
 
 if __name__ == '__main__':
@@ -25,8 +26,7 @@ if __name__ == '__main__':
         help='Path to the input image.')
     parser.add_argument('-n', '--piece-n', default=100, type=int,
         help='Number of puzzle pieces. Default is 100. The actual number of puzzle pieces may be different.')
-    parser.add_argument(
-        '-t', '--sample-n', default=1, type=int,
+    parser.add_argument('-t', '--sample-n', default=1, type=int,
         help='Number of puzzle you want to generate from the input image. Default is 1.')
     parser.add_argument('--offset-h', default=1, type=float,
         help='Provide the horizontal offset rate when chopping the image. Default is 1. \
@@ -54,8 +54,10 @@ if __name__ == '__main__':
         help='Boolean flag to enable the alpha channel. It will save the individual fragments images \
         as transparent (.png) images with alpha = 0 in the background.')
     parser.add_argument('-svr', '--save_regions', default=False, type=bool,
-        help='Boolean flag to save a color-coded image of the regions.')
-
+        help='Boolean flag to save a color-coded and an integer version of the regions.')
+    parser.add_argument('-pmf', '--perc_missing_fragments', default=0, type=float,
+        help='Percentage of missing fragments: values between 0 (no missing fragments) and 100 (all missing). \
+        The actual number will be calculated using floor(num_frags * perc) and will be saved in the output.')
 
 
     args = parser.parse_args()

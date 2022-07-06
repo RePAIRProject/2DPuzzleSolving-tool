@@ -25,17 +25,17 @@ Run `python3 generate_puzzle.py -i data/sample.png`.
 | ---- | ---- | ---- |
 | -h --help | | show this help message and exit |
 | -i | IMG_PATH | Path to the input image. |
-| -n | PIECE_N | Number of puzzle pieces. Default is 10. The actual number of puzzle pieces may be different. |
-| -t | SAMPLE_N | Number of puzzle you want to generate from the input image. Default is 1. |
-| --offset-h | OFFSET_H | Provide the horizontal offset rate when chopping the image. Default is 1. The offset is the rate of the initial rigid piece height. If the value is less than 0.5, no interaction will happen. |
-| --offset-w | OFFSET_W | Provide the vertical offset rate when chopping the image. Default is 1. The offset is the rate of the initial piece width. If the value is less than 0.5, no interaction will happen. |
-| -s | SMALL_REGION | A threshold controls the minimum area of a region with respect to initial rigid piece area. Default is 0.25. |
-| -r | ROTATE | A range of random rotation (in degree) applied on puzzle pieces. Default is 180. The value should be in \[0, 180\]. Each piece randomly select a rotation degree in \[-r, r\] |
-| --bg_color | BG_COLOR | Background color to fill the empty area. Default is \[0, 0, 0\]. The type is three uint8 numbers in BGR OpenCV format. |
-| -sf | SMOOTH_FLAG | Boolean flag to enable or disable the interpolation of the cuts. False (default) will cut the image using segments, True will use smooth curves. |
-| -ac | ALPHA_CHANNEL | Boolean flag to enable the alpha channel. It will save the individual fragments images as transparent (.png) images with alpha = 0 in the background. |
+| -n | PIECE_N | Number of puzzle pieces. Default is `10`. The actual number of puzzle pieces may be different. |
+| -t | SAMPLE_N | Number of puzzle you want to generate from the input image. Default is `1`. |
+| --offset-h | OFFSET_H | Provide the horizontal offset rate when chopping the image. Default is `1`. The offset is the rate of the initial rigid piece height. If the value is less than `0.5`, no interaction will happen. |
+| --offset-w | OFFSET_W | Provide the vertical offset rate when chopping the image. Default is `1`. The offset is the rate of the initial piece width. If the value is less than `0.5`, no interaction will happen. |
+| -s | SMALL_REGION | A threshold controls the minimum area of a region with respect to initial rigid piece area. Default is `0.25`. |
+| -r | ROTATE | A range of random rotation (in degree) applied on puzzle pieces. Default is 180. The value should be in `\[0, 180\]`. Each piece randomly select a rotation degree in `\[-r, r\]` |
+| --bg_color | BG_COLOR | Background color to fill the empty area. Default is `\[0, 0, 0\]`. The type is three uint8 numbers in BGR OpenCV format. |
+| -sf | SMOOTH_FLAG | Boolean flag to enable or disable the interpolation of the cuts. `False` (default) will cut the image using segments, `True` will use smooth curves. |
+| -ac | ALPHA_CHANNEL | Boolean flag to enable the alpha channel. It will save the individual fragments images as transparent (.png) images with `alpha=0` instead of the background color (so `bg_color` is not useful in this case). |
 | -svr | SAVE_REGIONS | Boolean flag to save a color-coded and an integer version of the regions. |
-| -pmf | PERC_MISSING_FRAGMENTS | Percentage of missing fragments: values between 0 (no missing fragments) and 100 (all missing). The actual number will be calculated using floor(num_frags * perc) and will be saved in the output. |
+| -pmf | PERC_MISSING_FRAGMENTS | Percentage of missing fragments: values between `0` (no missing fragments) and `100` (all missing). The actual number will be calculated using `floor(num_frags * perc)` and will be saved in the output. The missing fragments are missing only in the `challenge.zip` file, in the stadnard output folder they are there (in case you need them). |
 #### 1.1.2 Output file tree:
 
 ```bash

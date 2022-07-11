@@ -365,7 +365,7 @@ class PuzzleGenerator:
 
 
     def run(self, piece_n, offset_rate_h=0.2, offset_rate_w=0.2, small_region_area_ratio=0.25, rot_range=180,
-            smooth_flag=False, alpha_channel=True, perc_missing_fragments=0):
+            smooth_flag=False, alpha_channel=True, perc_missing_fragments=0 ):
 
         self.rot_range = rot_range
         self.piece_n = piece_n

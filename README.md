@@ -1,41 +1,36 @@
 This is a fork of the [original repository](https://github.com/xmlyqing00/PuzzleSolving-tool) where we are changing some part of the fragment generation to be able to have a quick and flexible approach to generate 2D puzzle with different difficulties starting from a 2D image.
 
-# PuzzleSolving-tool
-
-This is a package containing three tools for puzzle solving:
-
-1. Puzzle Pieces Generator
-   - Python based (Support command lines and batch generations).
-   - Web based (Use it without installation) [link](https://xmlyqing00.github.io/PuzzleSolving-tool/generator.html)
-2. Visualization tool (Web-based Debugger, use it without installation) [link](https://xmlyqing00.github.io/PuzzleSolving-tool/debugger.html)
-
-For automatic puzzle solving (fragmented image reassembly) algorithms, please see our project [webpage](https://www.ece.lsu.edu/xinli/PuzzleSolving/index.html) for more information.
-
-## 1 Puzzle Pieces Generator
+We focus on the fragment generation using python.
 
 ### 1.1 Python-based Generator
 
 A tool for generating puzzles. OpenCV-python is required.
 
-Run `python3 generate_puzzle.py -i data/sample.png`.
+To install it `pip install opencv-python` (you can test with `python -c 'import cv2'` to be sure it worked)
+
+To launch the image generator, simply run `python3 generate_puzzle.py -i data/sample.png`.
 
 #### 1.1.1 Optional arguments:
 
-| option | value | description |
-| ---- | ---- | ---- |
-| -h --help | | show this help message and exit |
-| -i | IMG_PATH | Path to the input image. |
-| -n | PIECE_N | Number of puzzle pieces. Default is `10`. The actual number of puzzle pieces may be different. |
-| -t | SAMPLE_N | Number of puzzle you want to generate from the input image. Default is `1`. |
-| --offset-h | OFFSET_H | Provide the horizontal offset rate when chopping the image. Default is `1`. The offset is the rate of the initial rigid piece height. If the value is less than `0.5`, no interaction will happen. |
-| --offset-w | OFFSET_W | Provide the vertical offset rate when chopping the image. Default is `1`. The offset is the rate of the initial piece width. If the value is less than `0.5`, no interaction will happen. |
-| -s | SMALL_REGION | A threshold controls the minimum area of a region with respect to initial rigid piece area. Default is `0.25`. |
-| -r | ROTATE | A range of random rotation (in degree) applied on puzzle pieces. Default is 180. The value should be in `\[0, 180\]`. Each piece randomly select a rotation degree in `\[-r, r\]` |
-| --bg_color | BG_COLOR | Background color to fill the empty area. Default is `\[0, 0, 0\]`. The type is three uint8 numbers in BGR OpenCV format. |
-| -sf | SMOOTH_FLAG | Boolean flag to enable or disable the interpolation of the cuts. `False` (default) will cut the image using segments, `True` will use smooth curves. |
-| -ac | ALPHA_CHANNEL | Boolean flag to enable the alpha channel. It will save the individual fragments images as transparent (.png) images with `alpha=0` instead of the background color (so `bg_color` is not useful in this case). |
-| -svr | SAVE_REGIONS | Boolean flag to save a color-coded and an integer version of the regions. |
-| -pmf | PERC_MISSING_FRAGMENTS | Percentage of missing fragments: values between `0` (no missing fragments) and `100` (all missing). The actual number will be calculated using `floor(num_frags * perc)` and will be saved in the output. The missing fragments are missing only in the `challenge.zip` file, in the stadnard output folder they are there (in case you need them). |
+You can customize the fragment generation using these options:
+
+| option | name | default | description |
+| ---- | ---- | ---- | ---- |
+| -h --help | | | show this help message and exit |
+| -i | IMG_PATH | required | Path to the input image. |
+| -n | PIECE_N |`10` | Number of puzzle pieces. The actual number of puzzle pieces may be different. |
+| -t | SAMPLE_N | `1` | Number of puzzle you want to generate from the input image. |
+| --offset-h | OFFSET_H | `1` | Provide the horizontal offset rate when chopping the image. The offset is the rate of the initial rigid piece height. If the value is less than `0.5`, no interaction will happen. |
+| --offset-w | OFFSET_W | `1` | Provide the vertical offset rate when chopping the image. The offset is the rate of the initial piece width. If the value is less than `0.5`, no interaction will happen. |
+| -s | SMALL_REGION | `0.25` | A threshold controls the minimum area of a region with respect to initial rigid piece area. |
+| -r | ROTATE | `180` | A range of random rotation (in degree) applied on puzzle pieces. The value should be in `\[0, 180\]`. Each piece randomly select a rotation degree in `\[-r, r\]` |
+| --bg_color | BG_COLOR | `(0, 0, 0)` | Background color to fill the empty area. The type is three uint8 numbers in BGR OpenCV format. |
+| -sf | SMOOTH_FLAG | `False` | Boolean flag to enable or disable the interpolation of the cuts. `False` will cut the image using segments, `True` will use smooth curves. |
+| -ac | ALPHA_CHANNEL | `True` | Boolean flag to enable the alpha channel. It will save the individual fragments images as transparent (.png) images with `alpha=0` instead of the background color (so `bg_color` is not useful in this case). |
+| -svr | SAVE_REGIONS | `False` |Boolean flag to save a color-coded and an integer version of the regions. |
+| -pmf | PERC_MISSING_FRAGMENTS | `0` | Percentage of missing fragments: values between `0` (no missing fragments) and `100` (all missing). The actual number will be calculated using `floor(num_frags * perc)` and will be saved in the output. The missing fragments are missing only in the `challenge.zip` file, in the stadnard output folder they are there (in case you need them). |
+
+
 #### 1.1.2 Output file tree:
 
 ```bash
@@ -98,6 +93,21 @@ Run `python3 generate_puzzle.py -i data/sample.png`.
 
 7. ##### groundtruth_extended.json
   It contains the challenge information (general information about the processing procedure and reference system) and the ground truth information. For some post-processing/checking offline it came very useful to have more info in one single file, but it does not introduces new information.
+
+
+
+
+
+# Rest of the tools (this is from the official repo)
+
+This is a package containing three tools for puzzle solving:
+
+1. Puzzle Pieces Generator
+   - Python based (Support command lines and batch generations).
+   - Web based (Use it without installation) [link](https://xmlyqing00.github.io/PuzzleSolving-tool/generator.html)
+2. Visualization tool (Web-based Debugger, use it without installation) [link](https://xmlyqing00.github.io/PuzzleSolving-tool/debugger.html)
+
+For automatic puzzle solving (fragmented image reassembly) algorithms, please see our project [webpage](https://www.ece.lsu.edu/xinli/PuzzleSolving/index.html) for more information.
 
 ### 1.2 Web-based Generator
 This is an earlier version. The pieces' shapes may be irregular. If you need semi-regular puzzle pieces, please refer to the python-based generator above.

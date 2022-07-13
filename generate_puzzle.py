@@ -15,7 +15,7 @@ def generate_puzzle(args):
         print('Sample:', i)
 
         generator.run(args.piece_n, args.offset_h, args.offset_w, args.small_region, args.rotate, args.smooth_flag,
-                      args.alpha_channel, args.perc_missing_fragments)
+                      args.alpha_channel, args.perc_missing_fragments, args.erosion)
         generator.save(args.bg_color, args.save_regions)
 
 if __name__ == '__main__':
@@ -58,7 +58,9 @@ if __name__ == '__main__':
     parser.add_argument('-pmf', '--perc_missing_fragments', default=0, type=float,
         help='Percentage of missing fragments: values between 0 (no missing fragments) and 100 (all missing). \
         The actual number will be calculated using floor(num_frags * perc) and will be saved in the output.')
-
+    parser.add_argument('-e', '--erosion', default=0, type=int,
+        help='Erosion (type): default is 0, which means no erosion. 1 means uniform erosion, 2 means partial erosion \
+        in some randomly chosen points and 3 means combining 1 and 2 (uniform + random points)')
 
     args = parser.parse_args()
 

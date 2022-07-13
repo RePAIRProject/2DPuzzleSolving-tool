@@ -21,6 +21,7 @@ class PuzzleGenerator:
         self.img = cv2.imread(img_path)
         self.img_size = self.img.shape[:2] # Height, Width, Channel
         self.aspect_ratio = self.img_size[0] / self.img_size[1]
+        self.kernel_size = 7
 
         # name of the file without extension
         self.name = img_path.split('/')[-1].split('.')[0]
@@ -143,41 +144,70 @@ class PuzzleGenerator:
             if stats[i][4] < small_region_area_limit:
                 region_idx_map[i] = -1
             else:
+                
                 region_idx_map[i] = region_new_cnt
                 region_new_cnt += 1
 
+        
         self.region_mat = region_idx_map[self.region_mat]
-
         print('\tRegion cnt final (raw): %d (%d)' % (region_new_cnt, self.region_cnt - 1))
         self.region_cnt = region_new_cnt
 
-        # Expand valid region to fill out the canvas
-        bg_pts = np.transpose(np.nonzero(self.region_mat == -1)).tolist()
-        self.region_mat = self.region_mat.tolist()
-        que = []
+        if self.erosion == 0:
+            # Expand valid region to fill out the canvas
+            bg_pts = np.transpose(np.nonzero(self.region_mat == -1)).tolist()
+            self.region_mat = self.region_mat.tolist()
+            que = []
 
-        for bg_pt in bg_pts:
-            cur_p = Vector(bg_pt[1], bg_pt[0])
-            for dir in dirs:
-                next_p = cur_p + dir
-                if utils.check_outside(next_p.x, next_p.y, self.img_size[1], self.img_size[0]) or \
-                    self.region_mat[next_p.y][next_p.x] == -1:
-                    continue
-                que.append(next_p)
+            for bg_pt in bg_pts:
+                cur_p = Vector(bg_pt[1], bg_pt[0])
+                for dir in dirs:
+                    next_p = cur_p + dir
+                    if utils.check_outside(next_p.x, next_p.y, self.img_size[1], self.img_size[0]) or \
+                        self.region_mat[next_p.y][next_p.x] == -1:
+                        continue
+                    que.append(next_p)
 
-        while len(que) > 0:
-            cur_p = que.pop(0)
-            for dir in dirs:
-                next_p = cur_p + dir
-                if utils.check_outside(next_p.x, next_p.y, self.img_size[1], self.img_size[0]) or \
-                    self.region_mat[next_p.y][next_p.x] != -1:
-                    continue
-                self.region_mat[next_p.y][next_p.x] = self.region_mat[cur_p.y][cur_p.x]
-                que.append(next_p)
+            while len(que) > 0:
+                cur_p = que.pop(0)
+                for dir in dirs:
+                    next_p = cur_p + dir
+                    if utils.check_outside(next_p.x, next_p.y, self.img_size[1], self.img_size[0]) or \
+                        self.region_mat[next_p.y][next_p.x] != -1:
+                        continue
+                    self.region_mat[next_p.y][next_p.x] = self.region_mat[cur_p.y][cur_p.x]
+                    que.append(next_p)
 
-        # Check the region mat
-        unlabel_pts = np.transpose(np.nonzero(np.ma.masked_equal(self.region_mat, -1).mask))
-        assert(unlabel_pts.size == 0)
+            # Check the region mat
+            unlabel_pts = np.transpose(np.nonzero(np.ma.masked_equal(self.region_mat, -1).mask))
+            assert(unlabel_pts.size == 0)
+
+        else: #if self.erosion > 0:
+            # pdb.set_trace()
+            eroded_region_mat = np.zeros_like(self.region_mat)
+            for reg_val in range(self.region_cnt): # in np.unique(self.region_mat):
+                cur_reg = self.region_mat == reg_val
+                # plt.subplot(121)
+                # plt.imshow(cur_reg)
+                kernel = np.random.rand(self.kernel_size, self.kernel_size)
+                eroded_reg = cv2.erode(cur_reg.astype(np.uint8), kernel, iterations=1)
+                eroded_region_mat += eroded_reg * reg_val
+                # plt.subplot(122)
+                # plt.imshow(eroded_reg)
+                # plt.show()
+                # pdb.set_trace()
+            self.region_mat = eroded_region_mat
+            # TODO 
+            # if self.erosion == 1:
+            #     #
+
+            # elif self.erosion == 2:
+            #     #
+            # elif self.erosion == 3:
+            #     #
+            # else:
+            #     print('not done yet')
+        
 
         # for i in range(self.region_cnt):
         #     mask = np.ma.masked_equal(self.region_mat, i).mask.astype(np.uint8)
@@ -365,7 +395,7 @@ class PuzzleGenerator:
 
 
     def run(self, piece_n, offset_rate_h=0.2, offset_rate_w=0.2, small_region_area_ratio=0.25, rot_range=180,
-            smooth_flag=False, alpha_channel=True, perc_missing_fragments=0 ):
+            smooth_flag=False, alpha_channel=True, perc_missing_fragments=0, erosion=0):
 
         self.rot_range = rot_range
         self.piece_n = piece_n
@@ -375,6 +405,7 @@ class PuzzleGenerator:
         self.alpha_channel = alpha_channel
         self.small_region_area_ratio = small_region_area_ratio
         self.missing_indices = []
+        self.erosion = erosion
 
         print('\tInitial block in hori: %d, in vert: %d' % (self.w_n, self.h_n))
         print('\tOffset rate h: %.2f, w: %.2f, small region: %.2f, rot: %.2f' %

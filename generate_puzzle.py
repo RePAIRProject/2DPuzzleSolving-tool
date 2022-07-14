@@ -15,7 +15,7 @@ def generate_puzzle(args):
         print('Sample:', i)
 
         generator.run(args.piece_n, args.offset_h, args.offset_w, args.small_region, args.rotate, args.smooth_flag,
-                      args.alpha_channel, args.perc_missing_fragments, args.erosion)
+                      args.alpha_channel, args.perc_missing_fragments, args.erosion, args.borders)
         generator.save(args.bg_color, args.save_regions)
 
 if __name__ == '__main__':
@@ -61,7 +61,8 @@ if __name__ == '__main__':
     parser.add_argument('-e', '--erosion', default=0, type=int,
         help='Erosion (type): default is 0, which means no erosion. 1 means uniform erosion, 2 means partial erosion \
         in some randomly chosen points and 3 means combining 1 and 2 (uniform + random points)')
-
+    parser.add_argument('-b', '--borders', default=False, type=bool,
+        help='Create an additional version of the fragments (in a folder) with extrapolated borders for experiments')
     args = parser.parse_args()
 
     args.bg_color = tuple(args.bg_color)

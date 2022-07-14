@@ -4,13 +4,13 @@ We focus on the fragment generation using python.
 
 ### 1.1 Python-based Generator
 
-A tool for generating puzzles. 
+A tool for generating puzzles.
 
 #### Requirements
-It requires `matplotlib`, `scipy` and `opencv-python`. 
+It requires `matplotlib`, `scipy` and `opencv-python`.
 You can install them using pip with:
 
-``` 
+```
 pip install matplotlib scipy opencv-python
 ```
 
@@ -35,7 +35,9 @@ You can customize the fragment generation using these options:
 | -ac | ALPHA_CHANNEL | `True` | Boolean flag to enable the alpha channel. It will save the individual fragments images as transparent (.png) images with `alpha=0` instead of the background color (so `bg_color` is not useful in this case). |
 | -svr | SAVE_REGIONS | `False` |Boolean flag to save a color-coded and an integer version of the regions. |
 | -pmf | PERC_MISSING_FRAGMENTS | `0` | Percentage of missing fragments: values between `0` (no missing fragments) and `100` (all missing). The actual number will be calculated using `floor(num_frags * perc)` and will be saved in the output. The missing fragments are missing only in the `challenge.zip` file, in the stadnard output folder they are there (in case you need them). |
-| -e | EROSION | `0` |Erosion (type): `0` means no erosion, `1` means uniform erosion. More sophisticated types of erosions (`2`: partial erosion in some randomly chosen points and `3`: combining erosions (uniform + random points) are work in progress) | 
+| -e | EROSION | `0` |Erosion (type): `0` means no erosion, `1` means uniform erosion. More sophisticated types of erosions (`2`: partial erosion in some randomly chosen points and `3`: combining erosions (uniform + random points) are work in progress) |
+| -b | BORDERS | `False` | Create an additional version of the fragments (in a folder) with extrapolated borders for experiments |
+
 
 #### 1.1.2 Output file tree:
 

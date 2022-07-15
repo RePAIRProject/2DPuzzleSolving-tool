@@ -145,10 +145,8 @@ class PuzzleGenerator:
             if stats[i][4] < small_region_area_limit:
                 region_idx_map[i] = -1
             else:
-
                 region_idx_map[i] = region_new_cnt
                 region_new_cnt += 1
-
 
         self.region_mat = region_idx_map[self.region_mat]
         print('\tRegion cnt final (raw): %d (%d)' % (region_new_cnt, self.region_cnt - 1))
@@ -157,7 +155,8 @@ class PuzzleGenerator:
         if self.erosion == 0:
             # Expand valid region to fill out the canvas
             bg_pts = np.transpose(np.nonzero(self.region_mat == -1)).tolist()
-            self.region_mat = self.region_mat.tolist()
+            # self.region_mat = self.region_mat.tolist()
+            self.region_list = self.region_mat.tolist()
             que = []
 
             for bg_pt in bg_pts:
@@ -165,7 +164,7 @@ class PuzzleGenerator:
                 for dir in dirs:
                     next_p = cur_p + dir
                     if utils.check_outside(next_p.x, next_p.y, self.img_size[1], self.img_size[0]) or \
-                        self.region_mat[next_p.y][next_p.x] == -1:
+                        self.region_list[next_p.y][next_p.x] == -1:
                         continue
                     que.append(next_p)
 
@@ -174,30 +173,31 @@ class PuzzleGenerator:
                 for dir in dirs:
                     next_p = cur_p + dir
                     if utils.check_outside(next_p.x, next_p.y, self.img_size[1], self.img_size[0]) or \
-                        self.region_mat[next_p.y][next_p.x] != -1:
+                        self.region_list[next_p.y][next_p.x] != -1:
                         continue
-                    self.region_mat[next_p.y][next_p.x] = self.region_mat[cur_p.y][cur_p.x]
+                    self.region_list[next_p.y][next_p.x] = self.region_list[cur_p.y][cur_p.x]
                     que.append(next_p)
 
             # Check the region mat
-            unlabel_pts = np.transpose(np.nonzero(np.ma.masked_equal(self.region_mat, -1).mask))
+            unlabel_pts = np.transpose(np.nonzero(np.ma.masked_equal(self.region_list, -1).mask))
             assert(unlabel_pts.size == 0)
 
         else: #if self.erosion > 0:
             # pdb.set_trace()
-            eroded_region_mat = np.zeros_like(self.region_mat)
+            eroded_region_mat = np.ones_like(self.region_mat) * -1
             for reg_val in range(self.region_cnt): # in np.unique(self.region_mat):
                 cur_reg = self.region_mat == reg_val
                 # plt.subplot(121)
                 # plt.imshow(cur_reg)
                 erosion_kernel = np.random.rand(self.erosion_kernel_size, self.erosion_kernel_size)
                 eroded_reg = cv2.erode(cur_reg.astype(np.uint8), erosion_kernel, iterations=1)
-                eroded_region_mat += eroded_reg * reg_val
+                eroded_region_mat += eroded_reg * (reg_val+1) # +1 because we start from -1 (see line 188)
                 # plt.subplot(122)
                 # plt.imshow(eroded_reg)
                 # plt.show()
                 # pdb.set_trace()
             self.region_mat = eroded_region_mat
+            self.region_list = self.region_mat.tolist()
             # TODO
             # if self.erosion == 1:
             #     #
@@ -221,7 +221,9 @@ class PuzzleGenerator:
     def save_raw_regions(self, iter):
 
         file_path = os.path.join(self.raw_regions, '%d.npy' % iter)
-        np.save(file_path, np.array(self.region_mat, dtype=np.int32))
+        file_path_mat = os.path.join(self.raw_regions, '%d_mat.npy' % iter)
+        np.save(file_path, np.array(self.region_list, dtype=np.int32))
+        np.save(file_path_mat, self.region_mat)
 
         f = open(file_path[:-3] + 'txt', 'w')
         f.write(str(self.region_cnt))
@@ -234,9 +236,9 @@ class PuzzleGenerator:
         if not os.path.exists(extrap_folder):
             os.mkdir(extrap_folder)
         #pdb.set_trace()
-        region_mat_np = np.array(self.region_mat, np.uint32)
+        #region_mat_np = np.array(self.region_mat, np.uint32)
         for reg_val in range(self.region_cnt): # in np.unique(self.region_mat):
-            cur_reg = region_mat_np == reg_val
+            cur_reg = self.region_mat == reg_val
             dilation_kernel = np.random.rand(self.dilation_kernel_size, self.dilation_kernel_size)
             dilated_reg = cv2.dilate(cur_reg.astype(np.uint8), dilation_kernel, iterations=1)
             #dilated_frag = self.img * np.dstack((dilated_reg,dilated_reg,dilated_reg))
@@ -250,7 +252,7 @@ class PuzzleGenerator:
     def save_puzzle(self, iter, bg_color, save_regions=False):
 
         bg_mat = np.full(self.img.shape, bg_color, np.uint8)
-        region_mat_np = np.array(self.region_mat, np.uint32)
+        #region_mat_np = np.array(self.region_mat, np.uint32)
 
 
         region_rgbs = []
@@ -263,14 +265,15 @@ class PuzzleGenerator:
 
         #pdb.set_trace()
         if save_regions:
-            cv2.imwrite(os.path.join(puzzle_path, 'regions_uint8.png'), region_mat_np.astype(np.uint8))
+            #pdb.set_trace()
+            cv2.imwrite(os.path.join(puzzle_path, 'regions_uint8.png'), self.region_mat)
             # change to cmap='gray' for grayscale color coding
-            plt.imsave(os.path.join(puzzle_path, 'regions_col_coded.png'), region_mat_np, cmap='jet')
+            plt.imsave(os.path.join(puzzle_path, 'regions_col_coded.jpg'), self.region_mat, cmap='jet')
 
         # Compute maximum boundary
         for i in range(self.region_cnt):
 
-            region_map = region_mat_np == i
+            region_map = self.region_mat == i
             region_map3 = np.repeat(region_map, 3).reshape(self.img.shape)
             rgb = np.where(region_map3, self.img, bg_mat)
 
@@ -296,6 +299,7 @@ class PuzzleGenerator:
 
         # Compute groundtruth
         # Save groundtruth in txt
+        #pdb.set_trace()
         for i in range(self.region_cnt):
 
             pad_top = (r - region_rgbs[i].shape[0]) // 2
